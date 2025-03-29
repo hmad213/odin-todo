@@ -3,48 +3,31 @@ import starFilled from "../images/star-filled.svg"
 import star from "../images/star.svg"
 
 class DOM{
-    constructor(){
-        
-    }
-
     initialize(projectList){
         this.loadHome(projectList);
         this.loadProjects(projectList);
     }
 
     loadHome(projectList){
-        this.clearContent();
-        let home = document.createElement("div");
-        home.classList.add("home");
-
-        let heading = document.createElement("h1");
+        let heading = document.querySelector("#content > h1");
         heading.textContent = "Home";
-        home.appendChild(heading)
 
-        let todoContainer = document.createElement("div");
-        todoContainer.classList.add("todo-container");
+        this.clearTodoContainer();
+        let todoContainer = document.querySelector(".todo-container");
 
         for(let i = 0; i < projectList.length; i++){
             for(let j = 0; j < projectList[i].todoList.length; j++){
                 todoContainer.appendChild(this.loadTodo(projectList[i].todoList[j]));
             }
         }
-        home.appendChild(todoContainer);
-
-        document.querySelector("#content").appendChild(home);
     }
 
     loadImportant(projectList){
-        this.clearContent();
-        let important = document.createElement("div");
-        important.classList.add("important");
-
-        let heading = document.createElement("h1");
+        let heading = document.querySelector("#content > h1");
         heading.textContent = "Important";
-        important.appendChild(heading)
 
-        let todoContainer = document.createElement("div");
-        todoContainer.classList.add("todo-container");
+        this.clearTodoContainer();
+        let todoContainer = document.querySelector(".todo-container");
 
         for(let i = 0; i < projectList.length; i++){
             for(let j = 0; j < projectList[i].todoList.length; j++){
@@ -53,12 +36,10 @@ class DOM{
                 }
             }
         }
-        important.appendChild(todoContainer);
-
-        document.querySelector("#content").appendChild(important);
     }
 
     loadProjects(projectList){
+        this.clearProjects();
         let projectContainer = document.querySelector(".project-container");
         for(let i = 1; i < projectList.length; i++){
             let div = document.createElement("div");
@@ -69,11 +50,23 @@ class DOM{
 
             let img = document.createElement("img");
             img.src = trash;
+            img.classList.add("trash-button");
 
             div.appendChild(title);
             div.appendChild(img);
 
+            div.addEventListener("click", (event) => {
+                let projects = document.querySelectorAll(".project");
+                for(let i = 0; i < projects.length; i++){
+                    if(event.target === projects[i]){
+                        this.loadProjectPage(projectList[i+1]);
+                    }
+                }
+            })
             projectContainer.appendChild(div);
+        }
+        if(projectList.length !== 0){
+            this.addProjectRemoveListener(projectList);
         }
     }
 
@@ -89,8 +82,6 @@ class DOM{
 
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        console.log(todo);
-        console.log(todo.checked);
         checkbox.checked = todo.checked;
 
         todoDiv.appendChild(checkbox);
@@ -111,8 +102,32 @@ class DOM{
         return todoDiv;
     }
 
-    clearContent(){
-        document.querySelector("#content").innerHTML = "";
+    loadProjectPage(project){
+        let heading = document.querySelector("#content > h1");
+        heading.textContent = project.title;
+
+        this.clearTodoContainer();
+        let todoContainer = document.querySelector(".todo-container");
+
+        for(let i = 0; i < project.todoList.length; i++){
+            todoContainer.appendChild(this.loadTodo(project.todoList[i]));
+        }
+    }
+
+    addProjectRemoveListener(projectList){
+        document.querySelectorAll(".project .trash-button").forEach((event) => event.addEventListener("click", (target) => {
+            let projects = document.querySelectorAll(".project");
+            for(let i = 0; i < projects.length; i++){
+                if(target.target.parentNode == projects[i]){
+                    projectList.splice(i+1, 1);
+                }
+            }
+            this.initialize(projectList);
+        }))
+    }
+
+    clearTodoContainer(){
+        document.querySelector(".todo-container").innerHTML = ""
     }
 
     clearProjects(){
