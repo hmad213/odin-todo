@@ -13,6 +13,7 @@ class DOM{
     }
 
     loadHome(projectList){
+        this.clearContent();
         let home = document.createElement("div");
         home.classList.add("home");
 
@@ -31,6 +32,30 @@ class DOM{
         home.appendChild(todoContainer);
 
         document.querySelector("#content").appendChild(home);
+    }
+
+    loadImportant(projectList){
+        this.clearContent();
+        let important = document.createElement("div");
+        important.classList.add("important");
+
+        let heading = document.createElement("h1");
+        heading.textContent = "Important";
+        important.appendChild(heading)
+
+        let todoContainer = document.createElement("div");
+        todoContainer.classList.add("todo-container");
+
+        for(let i = 0; i < projectList.length; i++){
+            for(let j = 0; j < projectList[i].todoList.length; j++){
+                if(projectList[i].todoList[j].priority){
+                    todoContainer.appendChild(this.loadTodo(projectList[i].todoList[j]));
+                }
+            }
+        }
+        important.appendChild(todoContainer);
+
+        document.querySelector("#content").appendChild(important);
     }
 
     loadProjects(projectList){
