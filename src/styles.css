@@ -28,7 +28,7 @@
     align-items: center;
 }
 
-.navbar button{
+.navbar .img-div button{
     width: fit-content;
     border: none;
     background: none;
@@ -38,7 +38,7 @@
     color: inherit;
 }
 
-.navbar button:hover{
+.navbar .img-div button:hover{
     color: #3D8D7A;
 }
 
@@ -50,7 +50,8 @@
 
 .navbar .projects img{
     width: 25px;
-    margin-left: 110px;
+    margin-left: auto;
+    margin-right: 0;
 }
 
 .navbar hr{
@@ -63,7 +64,6 @@
 
 .navbar .project{
     display: flex;
-    width: 80%;
     padding: 12px 10px;
     align-items: center;
     cursor: pointer;
@@ -71,6 +71,21 @@
     align-self: center;
     border-radius: 10px;
     margin-bottom: 10px;
+}
+
+.navbar .projects button{
+    border: none;
+    background-color: #80CBC4;
+    color: #EEEEEE;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.add-project{
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .navbar img{
@@ -82,4 +97,35 @@
 #content{
     background-color: #FBF8EF;
     padding: 70px;
+}
+
+#content .home{
+    color: #80CBC4;
+}
+
+#content img{
+    width: 25px;
+}
+
+#content .todo-container{
+    padding-top: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#content .todo{
+    padding: 10px 20px;
+    display: flex;
+    width: 70%;
+    gap: 10px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    color: #369b91;
+}
+
+#content .home .todo span{
+    margin-right: auto;
+    margin-top: 5px;
 }
