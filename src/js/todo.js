@@ -6,6 +6,14 @@ class Todo{
         this.priority = priority;
         this.checked = checked;
     }
+
+    togglePriority(){
+        this.priority = !this.priority;
+    }
+
+    toggleChecked(){
+        this.checked = !this.checked;
+    }
 }
 
 export default Todo;

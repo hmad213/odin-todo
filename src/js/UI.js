@@ -3,12 +3,27 @@ import starFilled from "../images/star-filled.svg"
 import star from "../images/star.svg"
 
 class DOM{
+    loadedPage = "home"
+
     initialize(projectList){
-        this.loadHome(projectList);
+        this.reloadPage(projectList);
         this.loadProjects(projectList);
     }
 
+    reloadPage(projectList){
+        if(this.loadedPage == "home"){
+            this.loadHome(projectList);
+        }
+        else if(this.loadedPage == "important"){
+            this.loadImportant(projectList);
+        }
+        else{
+            this.loadProjectPage(projectList, this.loadedPage);
+        }
+    }
+
     loadHome(projectList){
+        this.loadedPage = "home";
         let heading = document.querySelector("#content > h1");
         heading.textContent = "Home";
 
@@ -20,9 +35,11 @@ class DOM{
                 todoContainer.appendChild(this.loadTodo(projectList[i].todoList[j]));
             }
         }
+        this.addListeners(projectList);
     }
 
     loadImportant(projectList){
+        this.loadedPage = "important"
         let heading = document.querySelector("#content > h1");
         heading.textContent = "Important";
 
@@ -36,6 +53,7 @@ class DOM{
                 }
             }
         }
+        this.addListeners(projectList);
     }
 
     loadProjects(projectList){
@@ -59,7 +77,7 @@ class DOM{
                 let projects = document.querySelectorAll(".project");
                 for(let i = 0; i < projects.length; i++){
                     if(event.target === projects[i]){
-                        this.loadProjectPage(projectList[i+1]);
+                        this.loadProjectPage(projectList, i+1);
                     }
                 }
             })
@@ -78,6 +96,8 @@ class DOM{
         title.textContent = todo.title;
         if(todo.checked){
             title.style.textDecoration = "line-through";
+        }else{
+            title.style.textDecoration = "none";
         }
 
         let checkbox = document.createElement("input");
@@ -88,6 +108,7 @@ class DOM{
         todoDiv.appendChild(title);
 
         let starImg = document.createElement("img")
+        starImg.classList.add("star-button");
         if(todo.priority){
             starImg.src = starFilled;
         }else{
@@ -96,22 +117,25 @@ class DOM{
         todoDiv.appendChild(starImg);
         
         let trashImg = document.createElement("img");
+        trashImg.classList.add("trash-button");
         trashImg.src = trash;
         todoDiv.appendChild(trashImg)
         
         return todoDiv;
     }
 
-    loadProjectPage(project){
+    loadProjectPage(projectList, index){
+        this.loadedPage = `${index}`
         let heading = document.querySelector("#content > h1");
-        heading.textContent = project.title;
+        heading.textContent = projectList[index].title;
 
         this.clearTodoContainer();
         let todoContainer = document.querySelector(".todo-container");
 
-        for(let i = 0; i < project.todoList.length; i++){
-            todoContainer.appendChild(this.loadTodo(project.todoList[i]));
+        for(let i = 0; i < projectList[index].todoList.length; i++){
+            todoContainer.appendChild(this.loadTodo(projectList[index].todoList[i]));
         }
+        this.addListeners(projectList);
     }
 
     addProjectRemoveListener(projectList){
@@ -119,11 +143,140 @@ class DOM{
             let projects = document.querySelectorAll(".project");
             for(let i = 0; i < projects.length; i++){
                 if(target.target.parentNode == projects[i]){
+                    if(this.loadedPage == i+1){
+                        this.loadedPage = "home";
+                    }
+                    else if(this.loadedPage > i+1){
+                        this.loadedPage--;
+                    }
                     projectList.splice(i+1, 1);
                 }
             }
             this.initialize(projectList);
         }))
+    }
+
+    addTodoStarListener(projectList){
+        document.querySelectorAll("#content .star-button").forEach((e) => e.addEventListener("click", (target) => {
+            let todos = document.querySelectorAll("#content .todo");
+            if(this.loadedPage == "home"){
+                let index = 0;
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if (target.target.parentNode == todos[index]){
+                            projectList[i].todoList[j].togglePriority();
+                        }
+                        index++;
+                    }
+                }
+            }
+            else if(this.loadedPage == "important"){
+                let index = 0;
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if(projectList[i].todoList[j].priority){
+                            if (target.target.parentNode == todos[index]){
+                                projectList[i].todoList[j].togglePriority();
+                            }
+                            index++;
+                        }
+                    }
+                }
+            }
+            else{
+                let index = this.loadedPage;
+                for(let i = 0; i < projectList[index].todoList.length; i++){
+                    if (target.target.parentNode == todos[i]){
+                        projectList[index].todoList[i].togglePriority();
+                    }
+                }
+            }
+            this.initialize(projectList);
+        }))
+    }
+
+    addTodoRemoveListener(projectList){
+        document.querySelectorAll("#content .trash-button").forEach((e) => e.addEventListener("click", (target) => {
+            let todos = document.querySelectorAll("#content .todo");
+            if(this.loadedPage == "home"){
+                let index = 0;
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if (target.target.parentNode == todos[index]){
+                            projectList[i].removeTodo(j);
+                        }
+                        index++;
+                    }
+                }
+            }
+            else if(this.loadedPage == "important"){
+                let index = 0;
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if(projectList[i].todoList[j].priority){
+                            if (target.target.parentNode == todos[index]){
+                                projectList[i].removeTodo(j);
+                            }
+                            index++;
+                        }
+                    }
+                }
+            }
+            else{
+                let index = this.loadedPage;
+                for(let i = 0; i < projectList[index].todoList.length; i++){
+                    if (target.target.parentNode == todos[i]){
+                        projectList[index].removeTodo(i);
+                    }
+                }
+            }
+            this.initialize(projectList);
+        }))
+    }
+
+    addTodoCheckedListener(projectList){
+        document.querySelectorAll("#content .todo input").forEach((e) => e.addEventListener("click", (target) => {
+            let todos = document.querySelectorAll("#content .todo");
+            if(this.loadedPage == "home"){
+                let index = 0;
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if (target.target.parentNode == todos[index]){
+                            projectList[i].todoList[j].toggleChecked();
+                        }
+                        index++;
+                    }
+                }
+            }
+            else if(this.loadedPage == "important"){
+                let index = 0;
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if(projectList[i].todoList[j].priority){
+                            if (target.target.parentNode == todos[index]){
+                                projectList[i].todoList[j].toggleChecked();
+                            }
+                            index++;
+                        }
+                    }
+                }
+            }
+            else{
+                let index = this.loadedPage;
+                for(let i = 0; i < projectList[index].todoList.length; i++){
+                    if (target.target.parentNode == todos[i]){
+                        projectList[index].todoList[i].toggleChecked();
+                    }
+                }
+            }
+            this.initialize(projectList);
+        }))
+    }
+
+    addListeners(projectList){
+        this.addTodoStarListener(projectList);
+        this.addTodoRemoveListener(projectList);
+        this.addTodoCheckedListener(projectList);
     }
 
     clearTodoContainer(){
