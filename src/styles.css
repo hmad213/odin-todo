@@ -55,7 +55,7 @@
     margin-right: 0;
 }
 
-.navbar hr{
+.navbar hr, dialog hr{
     height: 3px;
     border: none;
     border-color: #B4EBE6;
@@ -136,6 +136,7 @@
     gap: 10px;
     box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
     color: #369b91;
+    cursor: pointer;
 }
 
 #content .todo span{
@@ -166,4 +167,76 @@
 
 #content .add-todo span{
     padding-top: 6px;
+}
+
+dialog{
+    margin: auto;
+    padding: 30px 30px;
+    border: none;
+    border-radius: 20px;
+    background-color: #80CBC4;
+    color: #EEEEEE;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 400px;
+}
+
+dialog .close-button{
+    position: absolute;
+    top: 20px;
+    right: 15px;
+    border: none;
+    font-size: 24px;
+    background-color: inherit;
+    cursor: pointer;
+}
+
+dialog .close-button:hover{
+    color: rgb(83, 83, 83);
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+form div{
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 20px;
+}
+
+form div input{
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 10px;
+    border: none;
+}
+
+form div input:focus{
+    border: solid 1px #B4EBE6;
+}
+
+form .create-button{
+    width: fit-content;
+    margin: auto;
+    font-size: 15px;
+    padding: 8px 40px;
+    background-color: #32de84;
+    border: none;
+    color: white;
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    cursor: pointer;
+}
+
+form .create-button:hover{
+    background-color: #2ec979;
+}
+
+.hidden{
+    display: none;
 }

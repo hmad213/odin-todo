@@ -8,8 +8,8 @@ class Project{
         this.todoList.push(todo);
     }
 
-    editTodo(index, todo){
-        this.todoList[index] = todo;
+    editTodo(index, title, description, dueDate, priority, checked){
+        this.todoList[index].editTodo(title, description, dueDate, priority, checked);
     }
 
     removeTodo(index){

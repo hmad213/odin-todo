@@ -1,9 +1,25 @@
 import trash from "../images/trash.svg"
 import starFilled from "../images/star-filled.svg"
 import star from "../images/star.svg"
+import Project from "../js/project.js"
 
 class DOM{
-    loadedPage = "home"
+    constructor(projectList){
+        this.loadedPage = "home";
+        document.querySelector(".home-button").addEventListener("click", () => {
+            this.loadHome(projectList);
+        })
+        
+        document.querySelector(".important-button").addEventListener("click", () => {
+            this.loadImportant(projectList);
+        })
+        
+        document.querySelector(".add-project").addEventListener("click", () => {
+            this.loadAddProjectDialog(projectList);
+        })
+
+        this.initialize(projectList);
+    }
 
     initialize(projectList){
         this.reloadPage(projectList);
@@ -136,6 +152,64 @@ class DOM{
             todoContainer.appendChild(this.loadTodo(projectList[index].todoList[i]));
         }
         this.addListeners(projectList);
+    }
+
+    loadAddProjectDialog(projectList){
+        let dialog = document.querySelector("dialog");
+        this.clearDialog();
+        dialog.showModal();
+        dialog.classList.remove("hidden");
+
+        dialog.appendChild(this.loadDialogTitle("New Project"));
+
+        let form = document.createElement("form");
+        form.appendChild(this.loadInputDiv("Title"));
+
+        let button = document.createElement("button");
+        button.classList.add("create-button");
+        button.textContent = "Create";
+        form.appendChild(button);
+
+        form.addEventListener("submit", (target) => {
+            target.preventDefault();
+            let dialog = document.querySelector("dialog");
+            dialog.close();
+            dialog.classList.add("hidden");
+            projectList.push(new Project(document.querySelector("dialog #title").value))
+            this.loadProjects(projectList);
+        })
+
+        dialog.appendChild(form)
+    }
+
+    loadInputDiv(t){
+        let inputDiv = document.createElement("div");
+
+        let label = document.createElement("label");
+        label.textContent = t;
+        label.htmlFor = t.toLowerCase();
+        
+        let input = document.createElement("input");
+        input.id = t.toLowerCase();
+        input.type = "text";
+        input.required = true;
+
+        inputDiv.appendChild(label);
+        inputDiv.appendChild(input);
+
+        return inputDiv;
+    }
+
+    loadDialogTitle(t){
+        let titleDiv = document.createElement("div");
+        titleDiv.classList.add(".title");
+
+        let title = document.createElement("h2");
+        title.textContent = t;
+
+        titleDiv.appendChild(title);
+        titleDiv.appendChild(document.createElement("hr"));
+        return titleDiv;
     }
 
     addProjectRemoveListener(projectList){
@@ -279,8 +353,12 @@ class DOM{
         this.addTodoCheckedListener(projectList);
     }
 
+    clearDialog(){
+        document.querySelector("dialog").innerHTML = "";
+    }
+
     clearTodoContainer(){
-        document.querySelector(".todo-container").innerHTML = ""
+        document.querySelector(".todo-container").innerHTML = "";
     }
 
     clearProjects(){
@@ -292,6 +370,4 @@ class DOM{
     }
 }
 
-let d = new DOM;
-
-export default d;
+export default DOM;
