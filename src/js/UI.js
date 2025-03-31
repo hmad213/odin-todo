@@ -1,7 +1,8 @@
 import trash from "../images/trash.svg"
 import starFilled from "../images/star-filled.svg"
 import star from "../images/star.svg"
-import Project from "../js/project.js"
+import Project from "./project.js"
+import Todo from "./todo.js"
 
 class DOM{
     constructor(projectList){
@@ -16,6 +17,10 @@ class DOM{
         
         document.querySelector(".add-project").addEventListener("click", () => {
             this.loadAddProjectDialog(projectList);
+        })
+
+        document.querySelector(".add-todo").addEventListener("click", () => {
+            this.loadAddTodoDialog(projectList);
         })
 
         this.initialize(projectList);
@@ -163,15 +168,20 @@ class DOM{
         dialog.appendChild(this.loadDialogTitle("New Project"));
 
         let form = document.createElement("form");
-        form.appendChild(this.loadInputDiv("Title"));
+        form.appendChild(this.loadInputDiv("Title", "text", true));
 
-        let button = document.createElement("button");
-        button.classList.add("create-button");
-        button.textContent = "Create";
-        form.appendChild(button);
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("buttons");
 
-        form.addEventListener("submit", (target) => {
-            target.preventDefault();
+        let createButton = document.createElement("button");
+        createButton.classList.add("create-button");
+        createButton.textContent = "Create";
+        buttonDiv.appendChild(createButton);
+
+        form.appendChild(buttonDiv);
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
             let dialog = document.querySelector("dialog");
             dialog.close();
             dialog.classList.add("hidden");
@@ -180,19 +190,103 @@ class DOM{
         })
 
         dialog.appendChild(form)
+
+        let closeButton = document.createElement("button");
+        closeButton.textContent = "x";
+        closeButton.classList.add("close-button");
+        closeButton.addEventListener("click", () => {
+            dialog.close();
+            dialog.classList.add("hidden");
+        })
+        dialog.appendChild(closeButton);
     }
 
-    loadInputDiv(t){
+    loadAddTodoDialog(projectList){
+        let dialog = document.querySelector("dialog");
+        this.clearDialog();
+        dialog.showModal();
+        dialog.classList.remove("hidden");
+
+        dialog.appendChild(this.loadDialogTitle("New Todo"));
+        let form = document.createElement("form");
+        form.appendChild(this.loadInputDiv("Title", "text", true));
+        form.appendChild(this.loadInputDiv("Description", "textarea", false));
+        form.appendChild(this.loadInputDiv("Date", "date", true));
+
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("buttons");
+
+        let starImg = document.createElement("img");
+        starImg.src = star;
+        starImg.addEventListener("click", (event) => {
+            if(event.target.src == star){
+                event.target.src = starFilled;
+            }
+            else{
+                event.target.src = star;
+            }
+        })
+
+        let createButton = document.createElement("button");
+        createButton.classList.add("create-button");
+        createButton.textContent = "Create";
+
+        buttonDiv.appendChild(starImg);
+        buttonDiv.appendChild(createButton);
+        form.appendChild(buttonDiv);
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            let dialog = document.querySelector("dialog");
+            dialog.close();
+            dialog.classList.add("hidden");
+            let title = event.target.querySelector("#title").value;
+            let description = event.target.querySelector("#description").value;
+            let date = event.target.querySelector("#date").value;
+            let priority;
+            if(event.target.querySelector(".buttons img").src == star){
+                priority = false;
+            }else{
+                priority = true;
+            }
+
+            if(this.loadedPage == "home" || this.loadedPage == "important"){
+                projectList[0].addTodo(new Todo(title, description, date, priority, false));
+            }else{
+                projectList[this.loadedPage].addTodo(title, description, date, priority, false)
+            }
+            this.reloadPage(projectList)
+        })
+
+        dialog.appendChild(form);
+
+        let closeButton = document.createElement("button");
+        closeButton.textContent = "x";
+        closeButton.classList.add("close-button");
+        closeButton.addEventListener("click", () => {
+            dialog.close();
+            dialog.classList.add("hidden");
+        })
+        dialog.appendChild(closeButton);
+    }
+
+    loadInputDiv(name, type, required){
         let inputDiv = document.createElement("div");
 
         let label = document.createElement("label");
-        label.textContent = t;
-        label.htmlFor = t.toLowerCase();
+        label.textContent = name;
+        label.htmlFor = name.toLowerCase();
         
-        let input = document.createElement("input");
-        input.id = t.toLowerCase();
-        input.type = "text";
-        input.required = true;
+        let input;
+        if(type == "textarea"){
+            input = document.createElement("textarea");
+        }
+        else{
+            input = document.createElement("input");
+            input.type = type;
+        }
+        input.id = name.toLowerCase();
+        input.required = required;
 
         inputDiv.appendChild(label);
         inputDiv.appendChild(input);
@@ -213,10 +307,10 @@ class DOM{
     }
 
     addProjectRemoveListener(projectList){
-        document.querySelectorAll(".project .trash-button").forEach((event) => event.addEventListener("click", (target) => {
+        document.querySelectorAll(".project .trash-button").forEach((event) => event.addEventListener("click", (event) => {
             let projects = document.querySelectorAll(".project");
             for(let i = 0; i < projects.length; i++){
-                if(target.target.parentNode == projects[i]){
+                if(event.target.parentNode == projects[i]){
                     if(this.loadedPage == i+1){
                         this.loadedPage = "home";
                     }
@@ -231,13 +325,13 @@ class DOM{
     }
 
     addTodoStarListener(projectList){
-        document.querySelectorAll("#content .star-button").forEach((e) => e.addEventListener("click", (target) => {
+        document.querySelectorAll("#content .star-button").forEach((e) => e.addEventListener("click", (event) => {
             let todos = document.querySelectorAll("#content .todo");
             if(this.loadedPage == "home"){
                 let index = 0;
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
-                        if (target.target.parentNode == todos[index]){
+                        if (event.target.parentNode == todos[index]){
                             projectList[i].todoList[j].togglePriority();
                         }
                         index++;
@@ -249,7 +343,7 @@ class DOM{
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
                         if(projectList[i].todoList[j].priority){
-                            if (target.target.parentNode == todos[index]){
+                            if (event.target.parentNode == todos[index]){
                                 projectList[i].todoList[j].togglePriority();
                             }
                             index++;
@@ -260,7 +354,7 @@ class DOM{
             else{
                 let index = this.loadedPage;
                 for(let i = 0; i < projectList[index].todoList.length; i++){
-                    if (target.target.parentNode == todos[i]){
+                    if (event.target.parentNode == todos[i]){
                         projectList[index].todoList[i].togglePriority();
                     }
                 }
@@ -270,13 +364,13 @@ class DOM{
     }
 
     addTodoRemoveListener(projectList){
-        document.querySelectorAll("#content .trash-button").forEach((e) => e.addEventListener("click", (target) => {
+        document.querySelectorAll("#content .trash-button").forEach((e) => e.addEventListener("click", (event) => {
             let todos = document.querySelectorAll("#content .todo");
             if(this.loadedPage == "home"){
                 let index = 0;
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
-                        if (target.target.parentNode == todos[index]){
+                        if (event.target.parentNode == todos[index]){
                             projectList[i].removeTodo(j);
                         }
                         index++;
@@ -288,7 +382,7 @@ class DOM{
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
                         if(projectList[i].todoList[j].priority){
-                            if (target.target.parentNode == todos[index]){
+                            if (event.target.parentNode == todos[index]){
                                 projectList[i].removeTodo(j);
                             }
                             index++;
@@ -299,7 +393,7 @@ class DOM{
             else{
                 let index = this.loadedPage;
                 for(let i = 0; i < projectList[index].todoList.length; i++){
-                    if (target.target.parentNode == todos[i]){
+                    if (event.target.parentNode == todos[i]){
                         projectList[index].removeTodo(i);
                     }
                 }
@@ -309,13 +403,13 @@ class DOM{
     }
 
     addTodoCheckedListener(projectList){
-        document.querySelectorAll("#content .todo input").forEach((e) => e.addEventListener("click", (target) => {
+        document.querySelectorAll("#content .todo input").forEach((e) => e.addEventListener("click", (event) => {
             let todos = document.querySelectorAll("#content .todo");
             if(this.loadedPage == "home"){
                 let index = 0;
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
-                        if (target.target.parentNode == todos[index]){
+                        if (event.target.parentNode == todos[index]){
                             projectList[i].todoList[j].toggleChecked();
                         }
                         index++;
@@ -327,7 +421,7 @@ class DOM{
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
                         if(projectList[i].todoList[j].priority){
-                            if (target.target.parentNode == todos[index]){
+                            if (event.target.parentNode == todos[index]){
                                 projectList[i].todoList[j].toggleChecked();
                             }
                             index++;
@@ -338,7 +432,7 @@ class DOM{
             else{
                 let index = this.loadedPage;
                 for(let i = 0; i < projectList[index].todoList.length; i++){
-                    if (target.target.parentNode == todos[i]){
+                    if (event.target.parentNode == todos[i]){
                         projectList[index].todoList[i].toggleChecked();
                     }
                 }

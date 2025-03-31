@@ -1,6 +1,7 @@
 *{
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 :root{
@@ -209,6 +210,15 @@ form div{
     font-size: 20px;
 }
 
+form .buttons{
+    flex-direction: row;
+    justify-content: center;
+}
+
+form .buttons img{
+    cursor: pointer;
+}
+
 form div input{
     font-size: 16px;
     padding: 4px;
@@ -222,7 +232,6 @@ form div input:focus{
 
 form .create-button{
     width: fit-content;
-    margin: auto;
     font-size: 15px;
     padding: 8px 40px;
     background-color: #32de84;
@@ -239,4 +248,18 @@ form .create-button:hover{
 
 .hidden{
     display: none;
+}
+
+textarea{
+    resize: none;
+    height: 80px;
+    border: none;
+    border-radius: 10px;
+    padding: 4px;
+    font-size: 16px;
+    font-family: inherit;
+}
+
+dialog img{
+    width: 30px;
 }
