@@ -263,6 +263,16 @@ class DOM{
         buttonDiv.appendChild(createButton);
         form.appendChild(buttonDiv);
 
+
+        if(this.loadedPage == "today"){
+            document.querySelector("dialog form #date").value = format(new Date(), "yyyy-MM-dd");
+        }
+        else if(this.loadedPage == "important"){
+            document.querySelector("dialog form .buttons img").src = starFilled;
+        }else if(this.loadedPage != "home"){
+            document.querySelectorAll("dialog form #project-select option")[this.loadedPage].selected = true;
+        }
+
         form.addEventListener("submit", (event) => {
             event.preventDefault();
             let dialog = document.querySelector("dialog");
