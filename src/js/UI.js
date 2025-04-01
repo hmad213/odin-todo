@@ -3,6 +3,7 @@ import starFilled from "../images/star-filled.svg"
 import star from "../images/star.svg"
 import Project from "./project.js"
 import Todo from "./todo.js"
+import storage from "./storage.js"
 import { format } from "date-fns";
 
 class DOM{
@@ -33,6 +34,7 @@ class DOM{
     }
 
     reloadPage(projectList){
+        storage.storeData(projectList);
         if(this.loadedPage == "home"){
             this.loadHome(projectList);
         }
@@ -193,7 +195,7 @@ class DOM{
             dialog.close();
             dialog.classList.add("hidden");
             projectList.push(new Project(document.querySelector("dialog #title").value))
-            this.loadProjects(projectList);
+            this.initialize(projectList);
         })
 
         dialog.appendChild(form)
@@ -250,6 +252,7 @@ class DOM{
             }
 
             let project = event.target.querySelector("#project-select").value;
+            console.log(projectList[project])
             projectList[project].addTodo(new Todo(title, description, date, priority, false));
             this.reloadPage(projectList)
         })
