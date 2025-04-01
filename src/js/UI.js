@@ -3,6 +3,7 @@ import starFilled from "../images/star-filled.svg"
 import star from "../images/star.svg"
 import Project from "./project.js"
 import Todo from "./todo.js"
+import { format } from "date-fns";
 
 class DOM{
     constructor(projectList){
@@ -97,7 +98,7 @@ class DOM{
             div.addEventListener("click", (event) => {
                 let projects = document.querySelectorAll(".project");
                 for(let i = 0; i < projects.length; i++){
-                    if(event.target === projects[i]){
+                    if(event.target === projects[i] || event.target === projects[i].querySelector("span")){
                         this.loadProjectPage(projectList, i+1);
                     }
                 }
@@ -121,10 +122,6 @@ class DOM{
             title.style.textDecoration = "none";
         }
 
-        title.addEventListener("click", (event) => {
-            this.loadTodoDetailsDialog(projectList, project, index)
-        })
-
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = project.todoList[index].checked;
@@ -146,6 +143,12 @@ class DOM{
         trashImg.src = trash;
         todoDiv.appendChild(trashImg);
         
+        todoDiv.addEventListener("click", (event) => {
+            if(event.target != starImg && event.target != trashImg && event.target != checkbox){
+                this.loadTodoDetailsDialog(projectList, project, index)
+            }
+        })
+
         return todoDiv;
     }
 
@@ -281,8 +284,9 @@ class DOM{
         })
         inputs[0].lastChild.value = project.todoList[index].title;
         inputs[1].lastChild.value = project.todoList[index].description;
-        inputs[2].lastChild.value = project.todoList[index].dueDate;
-        inputs[3].lastChild.querySelector(`#${project.title}`).selected = true;
+        inputs[2].lastChild.value = format(project.todoList[index].dueDate, "yyyy-MM-dd");
+        console.log(project.title.replace(/\s+/g, "-"))
+        inputs[3].lastChild.querySelector(`#${project.title.replace(/\s+/g, "-")}`).selected = true;
 
         form.addEventListener("submit", (event) => {
             event.preventDefault();
@@ -365,8 +369,8 @@ class DOM{
         for(let i = 0; i < projectList.length; i++){
             let option = document.createElement("option");
             option.value = `${i}`
-            option.id = projectList[i].title;
-            option.textContent = projectList[i].title;
+            option.id = projectList[i].title.replace(/\s+/g, "-")
+            option.textContent = projectList[i].title
             projectSelect.appendChild(option);
         }
 
