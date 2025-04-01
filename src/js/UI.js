@@ -4,7 +4,7 @@ import star from "../images/star.svg"
 import Project from "./project.js"
 import Todo from "./todo.js"
 import storage from "./storage.js"
-import { format } from "date-fns";
+import { format, isEqual, parse, startOfDay } from "date-fns";
 
 class DOM{
     constructor(projectList){
@@ -15,6 +15,10 @@ class DOM{
         
         document.querySelector(".important-button").addEventListener("click", () => {
             this.loadImportant(projectList);
+        })
+
+        document.querySelector(".today-button").addEventListener("click", () => {
+            this.loadToday(projectList);
         })
         
         document.querySelector(".add-project").addEventListener("click", () => {
@@ -40,6 +44,9 @@ class DOM{
         }
         else if(this.loadedPage == "important"){
             this.loadImportant(projectList);
+        }
+        else if(this.loadedPage == "today"){
+            this.loadToday(projectList);
         }
         else{
             this.loadProjectPage(projectList, this.loadedPage);
@@ -73,6 +80,26 @@ class DOM{
         for(let i = 0; i < projectList.length; i++){
             for(let j = 0; j < projectList[i].todoList.length; j++){
                 if(projectList[i].todoList[j].priority){
+                    todoContainer.appendChild(this.loadTodo(projectList, projectList[i], j));
+                }
+            }
+        }
+        this.addListeners(projectList);
+    }
+
+    loadToday(projectList){
+        this.loadedPage = "today"
+        let heading = document.querySelector("#content > h1");
+        heading.textContent = "Today";
+
+        this.clearTodoContainer();
+        let todoContainer = document.querySelector(".todo-container");
+
+        let today = startOfDay(new Date());
+        console.log(typeof today)
+        for(let i = 0; i < projectList.length; i++){
+            for(let j = 0; j < projectList[i].todoList.length; j++){
+                if(isEqual(today, startOfDay(projectList[i].todoList[j].dueDate))){
                     todoContainer.appendChild(this.loadTodo(projectList, projectList[i], j));
                 }
             }
@@ -243,7 +270,7 @@ class DOM{
             dialog.classList.add("hidden");
             let title = event.target.querySelector("#title").value;
             let description = event.target.querySelector("#description").value;
-            let date = event.target.querySelector("#date").value;
+            let date = parse(event.target.querySelector("#date").value, "yyyy-MM-dd", new Date());
             let priority;
             if(event.target.querySelector(".buttons img").src == star){
                 priority = false;
@@ -328,7 +355,7 @@ class DOM{
             dialog.classList.add("hidden");
             let title = event.target.querySelector("#title").value;
             let description = event.target.querySelector("#description").value;
-            let date = event.target.querySelector("#date").value;
+            let date = parse(event.target.querySelector("#date").value, "yyyy-MM-dd", new Date());
             let priority;
             if(event.target.querySelector(".buttons img").src == star){
                 priority = false;
@@ -476,6 +503,20 @@ class DOM{
                     }
                 }
             }
+            else if(this.loadedPage == "today"){
+                let index = 0;
+                let today = startOfDay(new Date());
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if(isEqual(today, startOfDay(projectList[i].todoList[j].dueDate))){
+                            if (event.target.parentNode == todos[index]){
+                                projectList[i].todoList[j].togglePriority();
+                            }
+                            index++
+                        }
+                    }
+                }
+            }
             else{
                 let index = this.loadedPage;
                 for(let i = 0; i < projectList[index].todoList.length; i++){
@@ -515,6 +556,20 @@ class DOM{
                     }
                 }
             }
+            else if(this.loadedPage == "today"){
+                let index = 0;
+                let today = startOfDay(new Date());
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if(isEqual(today, startOfDay(projectList[i].todoList[j].dueDate))){
+                            if (event.target.parentNode == todos[index]){
+                                projectList[i].removeTodo(j);
+                            }
+                            index++
+                        }
+                    }
+                }
+            }
             else{
                 let index = this.loadedPage;
                 for(let i = 0; i < projectList[index].todoList.length; i++){
@@ -546,6 +601,20 @@ class DOM{
                 for(let i = 0; i < projectList.length; i++){
                     for(let j = 0; j < projectList[i].todoList.length; j++){
                         if(projectList[i].todoList[j].priority){
+                            if (event.target.parentNode == todos[index]){
+                                projectList[i].todoList[j].toggleChecked();
+                            }
+                            index++;
+                        }
+                    }
+                }
+            }
+            else if(this.loadedPage == "today"){
+                let index = 0;
+                let today = startOfDay(new Date());
+                for(let i = 0; i < projectList.length; i++){
+                    for(let j = 0; j < projectList[i].todoList.length; j++){
+                        if(isEqual(today, startOfDay(projectList[i].todoList[j].dueDate))){
                             if (event.target.parentNode == todos[index]){
                                 projectList[i].todoList[j].toggleChecked();
                             }
