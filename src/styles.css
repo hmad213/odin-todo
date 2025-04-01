@@ -56,6 +56,10 @@
     margin-right: 0;
 }
 
+.navbar .projects img:hover{
+    opacity: 0.8;
+}
+
 .navbar hr, dialog hr{
     height: 3px;
     border: none;
@@ -121,6 +125,10 @@
     width: 25px;
 }
 
+#content img:hover{
+    opacity: 0.8;
+}
+
 #content .todo-container{
     padding-top: 30px;
     display: flex;
@@ -141,7 +149,7 @@
 }
 
 #content .todo span{
-    margin-right: auto;
+    flex: 1;
     margin-top: 5px;
 }
 
@@ -230,7 +238,7 @@ form div input:focus{
     border: solid 1px #B4EBE6;
 }
 
-form .create-button{
+form .form-button{
     width: fit-content;
     font-size: 15px;
     padding: 8px 40px;
@@ -242,8 +250,16 @@ form .create-button{
     cursor: pointer;
 }
 
-form .create-button:hover{
+form .form-button:hover{
     background-color: #2ec979;
+}
+
+form .edit-button{
+    background-color: #00308F;
+}
+
+form .edit-button:hover{
+    background-color: #013aab;
 }
 
 .hidden{
@@ -262,4 +278,22 @@ textarea{
 
 dialog img{
     width: 30px;
+}
+
+dialog img:hover{
+    opacity: 0.8;
+}
+
+select{
+    border-radius: 10px;
+    font-size: 16px;
+    padding: 4px;
+    border: none;
+}
+
+input:disabled, textarea:disabled, select:disabled{
+    background-color: #f8f9fa; 
+    color: #6c757d;
+    border: 1px solid #ced4da; 
+    opacity: 1;
 }

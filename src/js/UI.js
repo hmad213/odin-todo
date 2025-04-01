@@ -53,7 +53,7 @@ class DOM{
 
         for(let i = 0; i < projectList.length; i++){
             for(let j = 0; j < projectList[i].todoList.length; j++){
-                todoContainer.appendChild(this.loadTodo(projectList[i].todoList[j]));
+                todoContainer.appendChild(this.loadTodo(projectList, projectList[i], j));
             }
         }
         this.addListeners(projectList);
@@ -70,7 +70,7 @@ class DOM{
         for(let i = 0; i < projectList.length; i++){
             for(let j = 0; j < projectList[i].todoList.length; j++){
                 if(projectList[i].todoList[j].priority){
-                    todoContainer.appendChild(this.loadTodo(projectList[i].todoList[j]));
+                    todoContainer.appendChild(this.loadTodo(projectList, projectList[i], j));
                 }
             }
         }
@@ -109,28 +109,32 @@ class DOM{
         }
     }
 
-    loadTodo(todo){
+    loadTodo(projectList, project, index){
         let todoDiv = document.createElement("div");
         todoDiv.classList.add("todo")
 
         let title = document.createElement("span");
-        title.textContent = todo.title;
-        if(todo.checked){
+        title.textContent = project.todoList[index].title;
+        if(project.todoList[index].checked){
             title.style.textDecoration = "line-through";
         }else{
             title.style.textDecoration = "none";
         }
 
+        title.addEventListener("click", (event) => {
+            this.loadTodoDetailsDialog(projectList, project, index)
+        })
+
         let checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        checkbox.checked = todo.checked;
+        checkbox.checked = project.todoList[index].checked;
 
         todoDiv.appendChild(checkbox);
         todoDiv.appendChild(title);
 
         let starImg = document.createElement("img")
         starImg.classList.add("star-button");
-        if(todo.priority){
+        if(project.todoList[index].priority){
             starImg.src = starFilled;
         }else{
             starImg.src = star;
@@ -140,7 +144,7 @@ class DOM{
         let trashImg = document.createElement("img");
         trashImg.classList.add("trash-button");
         trashImg.src = trash;
-        todoDiv.appendChild(trashImg)
+        todoDiv.appendChild(trashImg);
         
         return todoDiv;
     }
@@ -154,7 +158,7 @@ class DOM{
         let todoContainer = document.querySelector(".todo-container");
 
         for(let i = 0; i < projectList[index].todoList.length; i++){
-            todoContainer.appendChild(this.loadTodo(projectList[index].todoList[i]));
+            todoContainer.appendChild(this.loadTodo(projectList, projectList[index], i));
         }
         this.addListeners(projectList);
     }
@@ -174,7 +178,7 @@ class DOM{
         buttonDiv.classList.add("buttons");
 
         let createButton = document.createElement("button");
-        createButton.classList.add("create-button");
+        createButton.classList.add("form-button");
         createButton.textContent = "Create";
         buttonDiv.appendChild(createButton);
 
@@ -202,16 +206,8 @@ class DOM{
     }
 
     loadAddTodoDialog(projectList){
-        let dialog = document.querySelector("dialog");
-        this.clearDialog();
-        dialog.showModal();
-        dialog.classList.remove("hidden");
-
-        dialog.appendChild(this.loadDialogTitle("New Todo"));
-        let form = document.createElement("form");
-        form.appendChild(this.loadInputDiv("Title", "text", true));
-        form.appendChild(this.loadInputDiv("Description", "textarea", false));
-        form.appendChild(this.loadInputDiv("Date", "date", true));
+        this.loadTodoDialog(projectList, "New Todo");
+        let form = document.querySelector("dialog form");
 
         let buttonDiv = document.createElement("div");
         buttonDiv.classList.add("buttons");
@@ -228,7 +224,7 @@ class DOM{
         })
 
         let createButton = document.createElement("button");
-        createButton.classList.add("create-button");
+        createButton.classList.add("form-button");
         createButton.textContent = "Create";
 
         buttonDiv.appendChild(starImg);
@@ -250,13 +246,133 @@ class DOM{
                 priority = true;
             }
 
-            if(this.loadedPage == "home" || this.loadedPage == "important"){
-                projectList[0].addTodo(new Todo(title, description, date, priority, false));
-            }else{
-                projectList[this.loadedPage].addTodo(title, description, date, priority, false)
-            }
+            let project = event.target.querySelector("#project-select").value;
+            projectList[project].addTodo(new Todo(title, description, date, priority, false));
             this.reloadPage(projectList)
         })
+    }
+
+    loadTodoDetailsDialog(projectList, project, index){
+        this.loadTodoDialog(projectList, "Todo Details");
+        let form = document.querySelector("dialog form");
+
+        let buttonDiv = document.createElement("div");
+        buttonDiv.classList.add("buttons");
+
+        let starImg = document.createElement("img");
+        if(project.todoList[index].priority){
+            starImg.src = starFilled
+        }else{
+            starImg.src = star;
+        }
+
+        let button = document.createElement("button");
+        button.classList.add("form-button");
+        button.classList.add("edit-button");
+        button.textContent = "Edit";
+
+        buttonDiv.appendChild(starImg);
+        buttonDiv.appendChild(button);
+        form.appendChild(buttonDiv);
+
+        let inputs = document.querySelectorAll("dialog form .input-div");
+        inputs.forEach((e) => {
+            e.lastChild.disabled = true;
+        })
+        inputs[0].lastChild.value = project.todoList[index].title;
+        inputs[1].lastChild.value = project.todoList[index].description;
+        inputs[2].lastChild.value = project.todoList[index].dueDate;
+        inputs[3].lastChild.querySelector(`#${project.title}`).selected = true;
+
+        form.addEventListener("submit", (event) => {
+            event.preventDefault();
+            this.enableTodoEdit(projectList, project, index);
+        })
+    }
+
+    enableTodoEdit(projectList, project, index){
+        let inputs = document.querySelectorAll("dialog form .input-div");
+        inputs.forEach((e) => {
+            e.lastChild.disabled = false;
+        })
+
+        document.querySelector("dialog form .buttons img").addEventListener("click", (event) => {
+            if(event.target.src == star){
+                event.target.src = starFilled;
+            }
+            else{
+                event.target.src = star;
+            }
+        })
+
+        let button = document.querySelector(".buttons button");
+        button.textContent = "Save Changes";
+        button.classList.remove("edit-button");
+
+        document.querySelector("dialog form").removeEventListener("submit", (event) => {
+            event.preventDefault();
+            this.enableTodoEdit(projectList, project, index);
+        })
+
+        document.querySelector("dialog form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            let dialog = document.querySelector("dialog");
+            dialog.close();
+            dialog.classList.add("hidden");
+            let title = event.target.querySelector("#title").value;
+            let description = event.target.querySelector("#description").value;
+            let date = event.target.querySelector("#date").value;
+            let priority;
+            if(event.target.querySelector(".buttons img").src == star){
+                priority = false;
+            }else{
+                priority = true;
+            }
+
+            let projectSelect = event.target.querySelector("#project-select").value;
+            if(projectList[projectSelect] == project){
+                project.editTodo(index, title, description, date, priority, project.todoList[index].checked);
+            }
+            else{
+                projectList[projectSelect].addTodo(new Todo(title, description, date, priority, project.todoList[index].checked));
+                project.removeTodo(index);
+            }
+            this.reloadPage(projectList);
+        })
+    }
+
+    loadTodoDialog(projectList, title){
+        let dialog = document.querySelector("dialog");
+        this.clearDialog();
+        dialog.showModal();
+        dialog.classList.remove("hidden");
+
+        dialog.appendChild(this.loadDialogTitle(title));
+        let form = document.createElement("form");
+        form.appendChild(this.loadInputDiv("Title", "text", true));
+        form.appendChild(this.loadInputDiv("Description", "textarea", false));
+        form.appendChild(this.loadInputDiv("Date", "date", true));
+        
+        let selectDiv = document.createElement("div");
+        selectDiv.classList.add("input-div");
+
+        let label = document.createElement("label");
+        label.textContent = "Project";
+        label.htmlFor = "project-select";
+
+        let projectSelect = document.createElement("select");
+        projectSelect.id = "project-select";
+        for(let i = 0; i < projectList.length; i++){
+            let option = document.createElement("option");
+            option.value = `${i}`
+            option.id = projectList[i].title;
+            option.textContent = projectList[i].title;
+            projectSelect.appendChild(option);
+        }
+
+        selectDiv.appendChild(label);
+        selectDiv.appendChild(projectSelect);
+        form.appendChild(selectDiv);
 
         dialog.appendChild(form);
 
@@ -270,8 +386,10 @@ class DOM{
         dialog.appendChild(closeButton);
     }
 
+
     loadInputDiv(name, type, required){
         let inputDiv = document.createElement("div");
+        inputDiv.classList.add("input-div");
 
         let label = document.createElement("label");
         label.textContent = name;
@@ -457,10 +575,6 @@ class DOM{
 
     clearProjects(){
         document.querySelector(".project-container").innerHTML = "";
-    }
-
-    addProject(){
-        return;
     }
 }
 
